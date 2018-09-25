@@ -1,64 +1,62 @@
 var path = require('path');
+var common = require('./common').webpack;
 var ExtractCSSChunksWebpackPlugin = require('extract-css-chunks-webpack-plugin');
 var CompressionWebpackPlugin = require('compression-webpack-plugin');
 
-var name = 'WebpackVSRollup';
-var formats = ['commonjs2', 'umd', 'amd'];
-var modes = [
-  {
-    mode: 'production'
-  },
+var getCssIdent = function(extract) {
+  return extract ? 'extracted' : 'inlined';
+};
 
-  {
-    mode: 'development',
-    devtool: 'source-map'
-  }
-];
-
-var getConfig = function(format, mode) {
+var getConfig = function(format, mode, extract) {
   return {
-    ...mode,
+    mode,
+    devtool: 'source-map',
     entry: './src/index.ts',
     output: {
       path: path.resolve(__dirname, '../build'),
-      filename: 'webpack/' + format + '/' + mode.mode + '.js',
-      library: name,
+      filename:
+        'webpack/' + getCssIdent(extract) + '/' + format + '/' + mode + '.js',
+      library: common.name,
       libraryTarget: format,
       globalObject: 'typeof self !== "undefined" ? self : this',
     },
     resolve: {
-      extensions: ['.tsx', '.ts', '.js', '.css']
+      extensions: ['.tsx', '.ts', '.js', '.css'],
     },
     module: {
       rules: [
         {
           test: /\.tsx?$/,
-          use: 'awesome-typescript-loader'
+          use: 'awesome-typescript-loader',
         },
 
         {
           test: /\.css$/,
           use: [
-            ExtractCSSChunksWebpackPlugin.loader,
+            extract ? ExtractCSSChunksWebpackPlugin.loader : 'style-loader',
             {
               loader: 'css-loader',
               options: {
                 modules: true,
-                localIdentName: '__[name]_[hash:hex:8]'
-              }
-            }
-          ]
-        }
-      ]
+                localIdentName: common.cssClassName,
+              },
+            },
+          ],
+        },
+      ],
     },
     plugins: [
-      new ExtractCSSChunksWebpackPlugin({
-        filename: 'webpack/style.css'
-      }),
+      ...(extract
+        ? [
+            new ExtractCSSChunksWebpackPlugin({
+              filename: 'webpack/' + getCssIdent(extract) + '/style.css',
+            }),
+          ]
+        : []),
       new CompressionWebpackPlugin({
         test: /\.(js|css)$/,
         minRatio: 0.8,
-      })
+      }),
     ],
     externals: {
       react: {
@@ -66,16 +64,18 @@ var getConfig = function(format, mode) {
         commonjs2: 'react',
         root: 'React',
         amd: 'react',
-      }
-    }
-  }
-}
+      },
+    },
+  };
+};
 
 var configs = [];
 
-formats.forEach(function(format) {
-  modes.forEach(function(mode) {
-    configs.push(getConfig(format, mode));
+common.extractCSS.forEach(extract => {
+  common.formats.forEach(format => {
+    common.modes.forEach(mode => {
+      configs.push(getConfig(format, mode, extract));
+    });
   });
 });
 

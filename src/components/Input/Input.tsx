@@ -7,9 +7,7 @@ interface IInputProps {
 
 class Input extends React.Component<IInputProps> {
   public render() {
-    return (
-      <input className={style['input']} value={this.props.value} />
-    )
+    return <input className={style['input']} value={this.props.value} />;
   }
 }
 

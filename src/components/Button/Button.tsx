@@ -8,8 +8,12 @@ interface IButtonProps {
 class Button extends React.Component<IButtonProps> {
   public render() {
     return (
-      <input type="button" className={style['button']} value={this.props.value} />
-    )
+      <input
+        type="button"
+        className={style['button']}
+        value={this.props.value}
+      />
+    );
   }
 }
 
