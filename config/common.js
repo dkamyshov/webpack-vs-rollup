@@ -4,7 +4,8 @@ var getCssIdent = function(extract) {
   return extract ? 'extracted' : 'inlined';
 };
 
-// 24 parallel builds cause node to exit with `js heap out of memory` error
+// 24 configurations!
+// node should be invoked with `--max-old-space-size`.
 var webpack = {
   formats: ['commonjs2', 'umd', 'amd', 'var', 'this', 'window'],
   modes: ['production', 'development'],

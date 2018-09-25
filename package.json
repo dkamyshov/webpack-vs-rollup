@@ -9,7 +9,8 @@
     "tsc": "tsc",
     "rollup": "rollup -c config/rollup.config.js",
     "webpack": "webpack-cli --config config/webpack.config.js",
-    "build": "npm run clean && npm run webpack && npm run rollup",
+    "webpack:xmem": "node --max-old-space-size=4096 node_modules/.bin/webpack-cli --config config/webpack.config.js",
+    "build": "npm run clean && npm run webpack:xmem && npm run rollup",
     "prettier": "prettier --write --single-quote --trailing-comma es5 config/**/*.js src/**/*.{js,tsx,ts,css}"
   },
   "author": "",
